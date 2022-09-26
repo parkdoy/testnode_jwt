@@ -1,4 +1,4 @@
-GET http://localhost:3000/posts
+GET http://localhost:3000/register
 
 ###
 
@@ -7,4 +7,5 @@ Content-Type: application/json
 
 {
     "username" : "doyoung",
+    "password" : "doyoung",
 }

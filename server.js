@@ -6,18 +6,18 @@ const jwt = require("jsonwebtoken");
 const mongoose = require('mongoose');
 const User = require("./model/user");
 const bodyParser = require('body-parser');
-const { PORT, MONGO_URI } = process.env;
+//const { PORT, MONGO_URI } = process.env;
 const bcrypt = require('bcryptjs');
 
 const JWT_SECRET = "asdfihoiadfsoidnq84dk1anrj23sjwj9rjsk" //공개되지 않도록 주의 매우 중요함..
 
 // CONNECT TO MONGODB SERVER
 mongoose
-  .connect(MONGO_URI,{
+  .connect('mongodb://localhost:27017/login-app-db',{
 
     /* 이부분 에러->6버전 부터는 지원하지 않는다는데 해결방법 잘 모름 */
-    //useNewUrlParser: false,
-    //useUnifiedTopology: false,
+    //useNewUrlParser: true,
+    //useUnifiedTopology: true,
     //useCreateIndex: false
 
   })
@@ -44,16 +44,22 @@ app.post("/api/login", async (req,res)=>{
     },
       JWT_SECRET
     )
+
     res.json({ status: 'ok' , data: 'token'});
   }
   res.json({ status: 'error', error : "유효하지 않은 유저"})
 });
 
-app.post("/api/resgister", async (req,res)=>{
+app.post("/api/register", async (req,res)=>{
 
-  const { token, newpassword: plainTextPassword } = req.body
+  const { username, password: plainTextPassword } = req.body
+  console.log(req.body)
   
   /*아이디 비번 유효성 검사*/
+  if (!username || typeof username !== 'string') {
+		return res.json({ status: 'error', error: 'Invalid username' })
+	}
+
 	if (!plainTextPassword || typeof plainTextPassword !== 'string') {
 		return res.json({ status: 'error', error: 'Invalid password' })
 	}
@@ -65,27 +71,27 @@ app.post("/api/resgister", async (req,res)=>{
 		})
 	}
 
+  const password = await bcrypt.hash(plainTextPassword, 10)
+
+  //생성요청
 	try {
-		const user = jwt.verify(token, JWT_SECRET)
-
-		const _id = user.id
-
-		const password = await bcrypt.hash(plainTextPassword, 10)
-
-		await User.updateOne(
-			{ _id },
-			{
-				$set: { password }
-			}
-		)
-		res.json({ status: 'ok' })
+		const response = await User.create({
+			username,
+			password
+		})
+		console.log('User created successfully: ', response)
 	} catch (error) {
-		console.log(error)
-		res.json({ status: 'error', error: ';))' })
+		if (error.code === 11000) {
+			// duplicate key
+			return res.json({ status: 'error', error: 'Username already in use' })
+		}
+		throw error
 	}
-});
 
-app.listen(PORT,(err) => {
+	res.json({ status: 'ok' })
+})
+
+app.listen(3000,(err) => {
   if(err) return console.log(err);
   console.log("서버가동");
 });
