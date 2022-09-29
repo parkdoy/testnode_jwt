@@ -15,7 +15,7 @@
     <form id="reg-form">
 			<input type="text" autocomplete="off" id="username" placeholder="Username" />
 			<input type="password" autocomplete="off" id="password" placeholder="Password" />
-			<input type="submit" value="Token Get" />
+			<input type="submit" value="create" />
 		</form>
 
     <script>
@@ -43,6 +43,8 @@
 				if (result.status === 'ok') {
 					// everythign went fine
 					alert('Success')
+					//login html로 이동
+					location.replace('/login.html');
 				} else {
 					alert(result.error)
 				}

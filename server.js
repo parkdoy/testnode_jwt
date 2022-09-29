@@ -18,17 +18,17 @@ mongoose
     /* 이부분 에러->6버전 부터는 지원하지 않는다는데 해결방법 잘 모름 */
     //useNewUrlParser: true,
     //useUnifiedTopology: true,
-    //useCreateIndex: false
+    //useCreateIndex: true
 
   })
   .then(() => console.log('Successfully connected to mongodb'))
   .catch(e => console.error(e));
 
-app.use('/', express.static(path.join(__dirname, "public")));
+app.use('/', express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.json()); //app.use(express.json()); //미들웨어
 
 
-app.post("/api/login", async (req,res)=>{
+app.post('/api/login', async (req,res)=>{
   const { username , password} = req.body;
   const user = await User.findOne({ username}).lean();
 
@@ -45,12 +45,12 @@ app.post("/api/login", async (req,res)=>{
       JWT_SECRET
     )
 
-    res.json({ status: 'ok' , data: 'token'});
+    return res.json({ status: 'ok' , data: token});
   }
   res.json({ status: 'error', error : "유효하지 않은 유저"})
 });
 
-app.post("/api/register", async (req,res)=>{
+app.post('/api/register', async (req,res)=>{
 
   const { username, password: plainTextPassword } = req.body
   console.log(req.body)
@@ -95,17 +95,6 @@ app.listen(3000,(err) => {
   if(err) return console.log(err);
   console.log("서버가동");
 });
-
-// const posts = [
-//     {
-//         username: 'doyoung',
-//         title: 'Post 1',
-//     },
-//     {
-
-//     }
-
-// ];
 
 /* 미들웨어 */
 //모든 서버의 요청은 use을 통과한다. 처리가 끝난다음 next로 넘어간다.
